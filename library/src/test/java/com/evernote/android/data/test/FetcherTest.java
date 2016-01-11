@@ -112,4 +112,18 @@ public class FetcherTest {
         .doesNotContain((String) null);
   }
 
+  @Test
+  public void countEmpty() {
+    assertThat(Fetcher.of(null).count()).isEqualTo(0);
+    assertThat(Fetcher.of(cursor).count()).isEqualTo(0);
+    verify(cursor).close();
+  }
+
+  @Test
+  public void countNonEmpty() {
+    when(cursor.getCount()).thenReturn(42);
+    assertThat(Fetcher.of(cursor).count()).isEqualTo(42);
+    verify(cursor).close();
+  }
+
 }

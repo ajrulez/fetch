@@ -15,7 +15,7 @@ import java.util.Set;
 /**
  * Utility to fetch all rows from a cursor and convert them to an object.
  * <p>
- * Only one operation is allowed, as the cursor will be closed at the end of any {@code queryXxx} operation.
+ * Only one operation is allowed, as the cursor will be closed at the end of any operation.
  * <p>
  * This class is meant to be used in conjunction with {@link QueryBuilder}:
  * <p>
@@ -90,6 +90,15 @@ public class Fetcher {
     try {
       if (isEmpty(cursor)) { return results; }
       return populate(converter, results);
+    } finally {
+      close();
+    }
+  }
+
+  /** Count the number of rows in the cursor. */
+  public int count() {
+    try {
+      return cursor == null ? 0 : cursor.getCount();
     } finally {
       close();
     }
