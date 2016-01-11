@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Utility to fetch all rows from a cursor and apply a transformation to them.
+ * Utility to fetch all rows from a cursor and convert them to an object.
  * <p>
  * Only one operation is allowed, as the cursor will be closed at the end of any {@code queryXxx} operation.
  * <p>
@@ -43,10 +43,10 @@ public class Fetcher {
     }
 
     /** Transform a single row of results (even if the cursor has more than 1 row). */
-    public <ResultT> Optional<ResultT> toValue(Transformation<ResultT> transformation) {
+    public <ResultT> Optional<ResultT> toValue(Converter<ResultT> converter) {
         try {
             if (cursor != null && cursor.moveToFirst()) {
-                return Optional.ofNullable(transformation.apply(cursor));
+                return Optional.ofNullable(converter.convert(cursor));
             }
             return Optional.empty();
         } finally {
@@ -55,20 +55,20 @@ public class Fetcher {
     }
 
     /** Transforms all rows from the cursor and put them in a read-only list. */
-    public <ResultT> List<ResultT> toList(Transformation<ResultT> transformation) {
+    public <ResultT> List<ResultT> toList(Converter<ResultT> converter) {
         try {
             if (isEmpty(cursor)) { return Collections.emptyList(); }
-            return populate(transformation, new ArrayList<ResultT>(cursor.getCount()));
+            return populate(converter, new ArrayList<ResultT>(cursor.getCount()));
         } finally {
             close();
         }
     }
 
     /** Transforms all rows from the cursor and put them in a read-only set. */
-    public <ResultT> Set<ResultT> toSet(Transformation<ResultT> transformation) {
+    public <ResultT> Set<ResultT> toSet(Converter<ResultT> converter) {
         try {
             if (isEmpty(cursor)) { return Collections.emptySet(); }
-            return populate(transformation, new HashSet<ResultT>(cursor.getCount()));
+            return populate(converter, new HashSet<ResultT>(cursor.getCount()));
         } finally {
             close();
         }
@@ -76,10 +76,10 @@ public class Fetcher {
 
     /** Transforms all rows from the cursor and put them in the provided collection. */
     public <ResultT, CollT extends Collection<ResultT>>
-    CollT toCollection(Transformation<ResultT> transformation, CollT results) {
+    CollT toCollection(Converter<ResultT> converter, CollT results) {
         try {
             if (isEmpty(cursor)) { return results; }
-            return populate(transformation, results);
+            return populate(converter, results);
         } finally {
             close();
         }
@@ -90,9 +90,9 @@ public class Fetcher {
     }
 
     private <ResultT, CollT extends Collection<ResultT>>
-    CollT populate(Transformation<ResultT> transformation, CollT results) {
+    CollT populate(Converter<ResultT> converter, CollT results) {
         while (this.cursor.moveToNext()) {
-            ResultT result = transformation.apply(this.cursor);
+            ResultT result = converter.convert(this.cursor);
             if (result != null || !skipNulls) {
                 results.add(result);
             }
@@ -103,34 +103,6 @@ public class Fetcher {
     private void close() {
         if (cursor != null) { cursor.close(); }
     }
-
-    public static final Transformation<String> STRING = new Transformation<String>() {
-        @Override
-        public String apply(Cursor cursor) {
-            return cursor.getString(0);
-        }
-    };
-
-    public static final Transformation<Long> LONG = new Transformation<Long>() {
-        @Override
-        public Long apply(Cursor cursor) {
-            return cursor.getLong(0);
-        }
-    };
-
-    public static final Transformation<Integer> INT = new Transformation<Integer>() {
-        @Override
-        public Integer apply(Cursor cursor) {
-            return cursor.getInt(0);
-        }
-    };
-
-    public static final Transformation<Boolean> BOOLEAN = new Transformation<Boolean>() {
-        @Override
-        public Boolean apply(Cursor cursor) {
-            return cursor.getInt(0) > 0;
-        }
-    };
 
 }
 

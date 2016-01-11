@@ -6,6 +6,7 @@ package com.evernote.android.data.test;
 
 import android.database.Cursor;
 
+import com.evernote.android.data.Converter;
 import com.evernote.android.data.Fetcher;
 import com.evernote.android.data.Optional;
 
@@ -32,11 +33,11 @@ public class FetcherTest {
     @Test
     public void nullCursor() {
         Fetcher fetcher = new Fetcher(null);
-        assertThat(fetcher.toList(Fetcher.STRING)).isNotNull().isEmpty();
-        assertThat(fetcher.toSet(Fetcher.STRING)).isNotNull().isEmpty();
-        assertThat(fetcher.toCollection(Fetcher.STRING, Collections.<String>emptyList()))
+        assertThat(fetcher.toList(Converter.STRING)).isNotNull().isEmpty();
+        assertThat(fetcher.toSet(Converter.STRING)).isNotNull().isEmpty();
+        assertThat(fetcher.toCollection(Converter.STRING, Collections.<String>emptyList()))
                 .isNotNull().isEmpty();
-        final Optional<String> result = fetcher.toValue(Fetcher.STRING);
+        final Optional<String> result = fetcher.toValue(Converter.STRING);
         assertThat(result).isNotNull();
         assertFalse(result.isPresent());
     }
@@ -45,7 +46,7 @@ public class FetcherTest {
     public void emptyCursorToList() {
         when(cursor.getCount()).thenReturn(0);
         Fetcher fetcher = new Fetcher(cursor);
-        List<String> result = fetcher.toList(Fetcher.STRING);
+        List<String> result = fetcher.toList(Converter.STRING);
         assertThat(result).isNotNull().isEmpty();
         verify(cursor).close();
     }
@@ -54,7 +55,7 @@ public class FetcherTest {
     public void emptyCursorToValue() {
         when(cursor.getCount()).thenReturn(0);
         Fetcher fetcher = new Fetcher(cursor);
-        Optional<String> result = fetcher.toValue(Fetcher.STRING);
+        Optional<String> result = fetcher.toValue(Converter.STRING);
         assertFalse(result.isPresent());
         verify(cursor).close();
     }
@@ -65,7 +66,7 @@ public class FetcherTest {
         when(cursor.moveToFirst()).thenReturn(true);
         when(cursor.getInt(0)).thenReturn(42);
         Fetcher fetcher = new Fetcher(cursor);
-        Optional<Integer> result = fetcher.toValue(Fetcher.INT);
+        Optional<Integer> result = fetcher.toValue(Converter.INT);
         assertTrue("We should have a value", result.isPresent());
         assertThat(result.get()).isEqualTo(42);
     }
@@ -75,7 +76,7 @@ public class FetcherTest {
         when(cursor.getCount()).thenReturn(1);
         when(cursor.moveToFirst()).thenReturn(true);
         Fetcher fetcher = new Fetcher(cursor);
-        Optional<String> result = fetcher.toValue(Fetcher.STRING);
+        Optional<String> result = fetcher.toValue(Converter.STRING);
         assertFalse("We should not have a value", result.isPresent());
     }
 
@@ -85,7 +86,7 @@ public class FetcherTest {
         when(cursor.moveToNext()).thenReturn(true, false);
         when(cursor.getString(0)).thenReturn("Yo");
         Fetcher fetcher = new Fetcher(cursor);
-        List<String> result = fetcher.toList(Fetcher.STRING);
+        List<String> result = fetcher.toList(Converter.STRING);
         assertThat(result).isNotNull().hasSize(1).contains("Yo");
     }
 
@@ -95,7 +96,7 @@ public class FetcherTest {
         when(cursor.moveToNext()).thenReturn(true, false);
         when(cursor.getString(0)).thenReturn(null);
         Fetcher fetcher = new Fetcher(cursor);
-        List<String> result = fetcher.toList(Fetcher.STRING);
+        List<String> result = fetcher.toList(Converter.STRING);
         assertThat(result).isNotNull().hasSize(1).contains((String) null);
     }
 
@@ -105,7 +106,7 @@ public class FetcherTest {
         when(cursor.moveToNext()).thenReturn(true, true, true, false);
         when(cursor.getString(0)).thenReturn("First", null, "Third");
         Fetcher fetcher = new Fetcher(cursor).skipNulls();
-        List<String> result = fetcher.toList(Fetcher.STRING);
+        List<String> result = fetcher.toList(Converter.STRING);
         assertThat(result).isNotNull().hasSize(2)
                 .contains("First", "Third")
                 .doesNotContain((String) null);

@@ -32,7 +32,7 @@ List<String> result = QueryBuilder.cr(sourceUri)
 ```
 
 Every parameter of `query` can be specified by calling additional optional
-methods, and you can use a custom transformation to build your own objects:
+methods, and you can use a custom `Converter` to build your own objects:
 
 ```java
 List<Thing> things = QueryBuilder.db("my_table")
@@ -41,9 +41,9 @@ List<Thing> things = QueryBuilder.db("my_table")
   .selectionArgs("42")
   .sortOrder("name")
   .fetch(database)
-  .toList(new Transformation<Thing>() {
+  .toList(new Converter<Thing>() {
     @Override
-    public Thing apply(Cursor c) {
+    public Thing convert(Cursor c) {
       int id = c.getInt(0);
       String name = c.getString(1);
       String description = c.getString(2);
