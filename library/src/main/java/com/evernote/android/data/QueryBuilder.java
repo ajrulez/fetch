@@ -107,7 +107,7 @@ public abstract class QueryBuilder<Source, Queryable,
   public abstract Cursor query(Queryable queryable);
 
   public final Fetcher fetch(Queryable queryable) {
-    return new Fetcher(query(queryable));
+    return Fetcher.of(query(queryable));
   }
 
   public static class CR extends QueryBuilder<Uri, ContentResolver, CR> {

@@ -26,6 +26,16 @@ import java.util.Set;
  */
 public class Fetcher {
 
+  private static final Fetcher EMPTY = new Fetcher(null);
+
+  public static Fetcher of(Cursor cursor) {
+    if (isEmpty(cursor)) {
+      if (cursor != null) { cursor.close(); }
+      return EMPTY;
+    }
+    return new Fetcher(cursor);
+  }
+
   private final Cursor cursor;
   private boolean skipNulls = false;
 

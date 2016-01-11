@@ -32,7 +32,7 @@ public class FetcherTest {
 
   @Test
   public void nullCursor() {
-    Fetcher fetcher = new Fetcher(null);
+    Fetcher fetcher = Fetcher.of(null);
     assertThat(fetcher.toList(Converter.STRING)).isNotNull().isEmpty();
     assertThat(fetcher.toSet(Converter.STRING)).isNotNull().isEmpty();
     assertThat(fetcher.toCollection(Converter.STRING, Collections.<String>emptyList()))
@@ -45,7 +45,7 @@ public class FetcherTest {
   @Test
   public void emptyCursorToList() {
     when(cursor.getCount()).thenReturn(0);
-    Fetcher fetcher = new Fetcher(cursor);
+    Fetcher fetcher = Fetcher.of(cursor);
     List<String> result = fetcher.toList(Converter.STRING);
     assertThat(result).isNotNull().isEmpty();
     verify(cursor).close();
@@ -54,7 +54,7 @@ public class FetcherTest {
   @Test
   public void emptyCursorToValue() {
     when(cursor.getCount()).thenReturn(0);
-    Fetcher fetcher = new Fetcher(cursor);
+    Fetcher fetcher = Fetcher.of(cursor);
     Optional<String> result = fetcher.toValue(Converter.STRING);
     assertFalse(result.isPresent());
     verify(cursor).close();
@@ -65,7 +65,7 @@ public class FetcherTest {
     when(cursor.getCount()).thenReturn(1);
     when(cursor.moveToFirst()).thenReturn(true);
     when(cursor.getInt(0)).thenReturn(42);
-    Fetcher fetcher = new Fetcher(cursor);
+    Fetcher fetcher = Fetcher.of(cursor);
     Optional<Integer> result = fetcher.toValue(Converter.INT);
     assertTrue("We should have a value", result.isPresent());
     assertThat(result.get()).isEqualTo(42);
@@ -75,7 +75,7 @@ public class FetcherTest {
   public void singleNullValue() {
     when(cursor.getCount()).thenReturn(1);
     when(cursor.moveToFirst()).thenReturn(true);
-    Fetcher fetcher = new Fetcher(cursor);
+    Fetcher fetcher = Fetcher.of(cursor);
     Optional<String> result = fetcher.toValue(Converter.STRING);
     assertFalse("We should not have a value", result.isPresent());
   }
@@ -85,7 +85,7 @@ public class FetcherTest {
     when(cursor.getCount()).thenReturn(1);
     when(cursor.moveToNext()).thenReturn(true, false);
     when(cursor.getString(0)).thenReturn("Yo");
-    Fetcher fetcher = new Fetcher(cursor);
+    Fetcher fetcher = Fetcher.of(cursor);
     List<String> result = fetcher.toList(Converter.STRING);
     assertThat(result).isNotNull().hasSize(1).contains("Yo");
   }
@@ -95,7 +95,7 @@ public class FetcherTest {
     when(cursor.getCount()).thenReturn(1);
     when(cursor.moveToNext()).thenReturn(true, false);
     when(cursor.getString(0)).thenReturn(null);
-    Fetcher fetcher = new Fetcher(cursor);
+    Fetcher fetcher = Fetcher.of(cursor);
     List<String> result = fetcher.toList(Converter.STRING);
     assertThat(result).isNotNull().hasSize(1).contains((String) null);
   }
@@ -105,7 +105,7 @@ public class FetcherTest {
     when(cursor.getCount()).thenReturn(3);
     when(cursor.moveToNext()).thenReturn(true, true, true, false);
     when(cursor.getString(0)).thenReturn("First", null, "Third");
-    Fetcher fetcher = new Fetcher(cursor).skipNulls();
+    Fetcher fetcher = Fetcher.of(cursor).skipNulls();
     List<String> result = fetcher.toList(Converter.STRING);
     assertThat(result).isNotNull().hasSize(2)
         .contains("First", "Third")
