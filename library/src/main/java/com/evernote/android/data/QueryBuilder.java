@@ -8,10 +8,11 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
-import android.text.TextUtils;
+
+import com.evernote.android.data.sel.Sel;
+import com.evernote.android.data.sel.Selection;
 
 import java.util.Collection;
-import java.util.Collections;
 
 /**
  * @author xlepaul
@@ -68,28 +69,22 @@ public abstract class QueryBuilder<Source, Queryable,
     return selectionArgs(selectionArgs.toArray(new String[selectionArgs.size()]));
   }
 
+  public Self select(String columnName, String value) {
+    return select(Sel.filter(columnName, value));
+  }
+
   /** @throws IllegalArgumentException if there are no values. */
   public Self select(String columnName, String... values) {
-    return selection(columnName + paramStringForList(values.length))
-        .selectionArgs(values);
+    return select(Sel.filter(columnName, values));
   }
 
   /** @throws IllegalArgumentException if the list is empty. */
   public Self select(String columnName, Collection<String> values) {
-    return selection(columnName + paramStringForList(values.size()))
-        .selectionArgs(values);
+    return select(Sel.filter(columnName, values));
   }
 
-  /**
-   * Build the part of the where clause for querying from a list of elements, depending on the size
-   * of the parameters.
-   *
-   * @throws IllegalArgumentException if {@code listSize == 0}
-   */
-  private String paramStringForList(int listSize) {
-    if (listSize == 0) { throw new IllegalArgumentException("Cannot query for 0 elements"); }
-    if (listSize == 1) { return " = ?"; }
-    return " IN (" + TextUtils.join(",", Collections.nCopies(listSize, "?")) + ")";
+  public Self select(Selection selection) {
+    return selection(selection.sql()).selectionArgs(selection.params());
   }
 
   public Self sortOrder(String sortOrder) {
