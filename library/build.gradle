@@ -6,8 +6,8 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
 
     defaultConfig {
-        versionName "0.1.0"
-        versionCode 100
+        versionName project.VERSION_NAME
+        versionCode Integer.parseInt(project.VERSION_CODE)
     }
 
     compileOptions {
@@ -23,3 +23,5 @@ dependencies {
     testCompile 'org.mockito:mockito-core:2.0.38-beta'
     testCompile 'org.assertj:assertj-core:3.3.0'
 }
+
+apply from: '../build-config/gradle-push.gradle'
