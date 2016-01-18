@@ -1,6 +1,10 @@
 apply plugin: 'com.android.library'
 apply plugin: 'com.github.ben-manes.versions'
 
+configurations {
+    javadocDeps
+}
+
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
@@ -19,6 +23,8 @@ android {
 
 dependencies {
     compile 'com.android.support:support-annotations:23.1.1'
+    // needed so that the javadoc can find the annotations
+    javadocDeps 'com.android.support:support-annotations:23.1.1'
     testCompile 'junit:junit:4.12'
     testCompile 'org.mockito:mockito-core:2.0.38-beta'
     testCompile 'org.assertj:assertj-core:3.3.0'

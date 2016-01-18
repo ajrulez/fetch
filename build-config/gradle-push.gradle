@@ -101,6 +101,7 @@ afterEvaluate { project ->
         failOnError = false
         source = android.sourceSets.main.java.sourceFiles
         classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+        classpath += configurations.javadocDeps
     }
 
     task androidJavadocsJar2(type: Jar, dependsOn: androidJavadocs2) {
