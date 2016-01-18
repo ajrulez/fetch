@@ -14,11 +14,11 @@ import java.util.Set;
 
 /**
  * Utility to fetch all rows from a cursor and convert them to an object.
- * <p/>
+ * <p>
  * Only one operation is allowed, as the cursor will be closed at the end of any {@code queryXxx} operation.
- * <p/>
+ * <p>
  * This class is meant to be used in conjunction with {@link QueryBuilder}:
- * <p/>
+ * <p>
  * {@code List<String> res = QueryBuilder.db().[...].fetch(db).toList(Fetcher.STRING);}
  *
  * @author xlepaul
