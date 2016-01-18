@@ -41,7 +41,7 @@ afterEvaluate { project ->
                 beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
 
                 pom.groupId = 'com.evernote'
-                pom.artifactId = 'fetch'
+                pom.artifactId = 'android-fetch'
                 pom.version = VERSION_NAME
 
                 repository(url: getReleaseRepositoryUrl()) {
@@ -52,7 +52,7 @@ afterEvaluate { project ->
                 }
 
                 pom.project {
-                    name 'Fetch'
+                    name 'Android Fetch'
                     packaging 'aar'
                     description 'Fluent API to query data in ContentResolver and SQLiteDatabase.'
                     url 'https://github.com/evernote/fetch'
@@ -68,6 +68,7 @@ afterEvaluate { project ->
                         developer {
                             name 'Xavier Lepaul'
                             email 'xavier.lepaul@gmail.com'
+                            url 'https://github.com/xalep'
                             roles {
                                 role 'developer'
                             }
