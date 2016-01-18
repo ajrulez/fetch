@@ -6,7 +6,15 @@ A library to eliminate boilerplate when querying `ContentResolver` and
 
 ## Usage
 
-In its simplest form, this:
+Add the following dependency to your Gradle config:
+
+```groovy
+dependencies {
+    compile 'com.evernote:fetch:0.1.0'
+}
+```
+
+In its simplest form, the library enbles this:
 
 ```java
 Cursor cursor;
@@ -24,11 +32,11 @@ try {
 
 ```
 
-Becomes this:
+To become this:
 
 ```java
 List<String> result = QueryBuilder.cr(sourceUri)
-  .fetch(contentResolver).toList(Fetcher.STRING);
+  .fetch(contentResolver).toList(Converter.STRING);
 ```
 
 Every parameter of `query` can be specified by calling additional optional
