@@ -10,11 +10,11 @@ Add the following dependency to your Gradle config:
 
 ```groovy
 dependencies {
-    compile 'com.evernote:fetch:0.1.0'
+    compile 'com.evernote:android-fetch:0.1.0'
 }
 ```
 
-In its simplest form, the library enbles this:
+In its simplest form, the library enables this:
 
 ```java
 Cursor cursor;
