@@ -73,6 +73,15 @@ afterEvaluate { project ->
                                 role 'developer'
                             }
                         }
+
+                        developer {
+                            name 'Ralf Wondratschek'
+                            email 'r.wondr@gmail.com'
+                            url 'https://vrallev.net'
+                            roles {
+                                role 'developer'
+                            }
+                        }
                     }
 
                     licenses {

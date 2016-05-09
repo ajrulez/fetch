@@ -26,102 +26,122 @@ import java.util.Set;
  */
 public class Fetcher {
 
-  private static final Fetcher EMPTY = new Fetcher(null);
+    private static final Fetcher EMPTY = new Fetcher(null);
 
-  public static Fetcher of(Cursor cursor) {
-    if (isEmpty(cursor)) {
-      if (cursor != null) { cursor.close(); }
-      return EMPTY;
+    public static Fetcher of(Cursor cursor) {
+        if (isEmpty(cursor)) {
+            if (cursor != null) {
+                cursor.close();
+            }
+            return EMPTY;
+        }
+        return new Fetcher(cursor);
     }
-    return new Fetcher(cursor);
-  }
 
-  private final Cursor cursor;
-  private boolean skipNulls = false;
+    private final Cursor cursor;
+    private boolean skipNulls = false;
 
-  public Fetcher(Cursor cursor) {
-    this.cursor = cursor;
-  }
-
-  /**
-   * Don't return rows for which the provided function returns {@code null}. Only apply to methods
-   * returning a collection.
-   */
-  public Fetcher skipNulls() {
-    this.skipNulls = true;
-    return this;
-  }
-
-  /** Transform a single row of results (even if the cursor has more than 1 row). */
-  public <ResultT> Optional<ResultT> toValue(Converter<ResultT> converter) {
-    try {
-      if (cursor != null && cursor.moveToFirst()) {
-        return Optional.ofNullable(converter.convert(cursor));
-      }
-      return Optional.empty();
-    } finally {
-      close();
+    public Fetcher(Cursor cursor) {
+        this.cursor = cursor;
     }
-  }
 
-  /** Transforms all rows from the cursor and put them in a read-only list. */
-  public <ResultT> List<ResultT> toList(Converter<ResultT> converter) {
-    try {
-      if (isEmpty(cursor)) { return Collections.emptyList(); }
-      return populate(converter, new ArrayList<ResultT>(cursor.getCount()));
-    } finally {
-      close();
+    /**
+     * Don't return rows for which the provided function returns {@code null}. Only apply to methods
+     * returning a collection.
+     */
+    public Fetcher skipNulls() {
+        this.skipNulls = true;
+        return this;
     }
-  }
 
-  /** Transforms all rows from the cursor and put them in a read-only set. */
-  public <ResultT> Set<ResultT> toSet(Converter<ResultT> converter) {
-    try {
-      if (isEmpty(cursor)) { return Collections.emptySet(); }
-      return populate(converter, new HashSet<ResultT>(cursor.getCount()));
-    } finally {
-      close();
+    /**
+     * Transform a single row of results (even if the cursor has more than 1 row).
+     */
+    public <ResultT> Optional<ResultT> toValue(Converter<ResultT> converter) {
+        try {
+            if (cursor != null && cursor.moveToFirst()) {
+                return Optional.ofNullable(converter.convert(cursor));
+            }
+            return Optional.empty();
+        } finally {
+            close();
+        }
     }
-  }
 
-  /** Transforms all rows from the cursor and put them in the provided collection. */
-  public <ResultT, CollT extends Collection<ResultT>>
-  CollT toCollection(Converter<ResultT> converter, CollT results) {
-    try {
-      if (isEmpty(cursor)) { return results; }
-      return populate(converter, results);
-    } finally {
-      close();
+    /**
+     * Transforms all rows from the cursor and put them in a read-only list.
+     */
+    public <ResultT> List<ResultT> toList(Converter<ResultT> converter) {
+        try {
+            if (isEmpty(cursor)) {
+                return Collections.emptyList();
+            }
+            return populate(converter, new ArrayList<ResultT>(cursor.getCount()));
+        } finally {
+            close();
+        }
     }
-  }
 
-  /** Count the number of rows in the cursor. */
-  public int count() {
-    try {
-      return cursor == null ? 0 : cursor.getCount();
-    } finally {
-      close();
+    /**
+     * Transforms all rows from the cursor and put them in a read-only set.
+     */
+    public <ResultT> Set<ResultT> toSet(Converter<ResultT> converter) {
+        try {
+            if (isEmpty(cursor)) {
+                return Collections.emptySet();
+            }
+            return populate(converter, new HashSet<ResultT>(cursor.getCount()));
+        } finally {
+            close();
+        }
     }
-  }
 
-  private static boolean isEmpty(Cursor cursor) {
-    return cursor == null || cursor.getCount() == 0;
-  }
-
-  private <ResultT, CollT extends Collection<ResultT>>
-  CollT populate(Converter<ResultT> converter, CollT results) {
-    while (this.cursor.moveToNext()) {
-      ResultT result = converter.convert(this.cursor);
-      if (result != null || !skipNulls) {
-        results.add(result);
-      }
+    /**
+     * Transforms all rows from the cursor and put them in the provided collection.
+     */
+    public <ResultT, CollT extends Collection<ResultT>>
+    CollT toCollection(Converter<ResultT> converter, CollT results) {
+        try {
+            if (isEmpty(cursor)) {
+                return results;
+            }
+            return populate(converter, results);
+        } finally {
+            close();
+        }
     }
-    return results;
-  }
 
-  private void close() {
-    if (cursor != null) { cursor.close(); }
-  }
+    /**
+     * Count the number of rows in the cursor.
+     */
+    public int count() {
+        try {
+            return cursor == null ? 0 : cursor.getCount();
+        } finally {
+            close();
+        }
+    }
+
+    private static boolean isEmpty(Cursor cursor) {
+        return cursor == null || cursor.getCount() == 0;
+    }
+
+    private <ResultT, CollT extends Collection<ResultT>>
+    CollT populate(Converter<ResultT> converter, CollT results) {
+        while (this.cursor.moveToNext()) {
+            ResultT result = converter.convert(this.cursor);
+            if (result != null || !skipNulls) {
+                results.add(result);
+            }
+        }
+        return results;
+    }
+
+    private void close() {
+        if (cursor != null) {
+            cursor.close();
+        }
+    }
 
 }
 

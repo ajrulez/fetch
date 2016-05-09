@@ -1,6 +1,9 @@
 apply plugin: 'com.android.library'
 apply plugin: 'com.github.ben-manes.versions'
 
+apply from: '../gradle/gradle-quality.gradle'
+apply from: '../gradle/build-timing-listener.gradle'
+
 configurations {
     javadocDeps
 }
@@ -9,7 +12,12 @@ android {
     compileSdkVersion rootProject.ext.compileSdkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
 
+    resourcePrefix 'fetch_'
+
     defaultConfig {
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+
         versionName project.VERSION_NAME
         versionCode Integer.parseInt(project.VERSION_CODE)
     }
@@ -19,15 +27,20 @@ android {
         targetCompatibility JavaVersion.VERSION_1_7
     }
 
+    lintOptions {
+        abortOnError true
+    }
 }
 
 dependencies {
-    compile 'com.android.support:support-annotations:23.1.1'
+    compile "com.android.support:support-annotations:$rootProject.ext.supportLibVersion"
+
     // needed so that the javadoc can find the annotations
-    javadocDeps 'com.android.support:support-annotations:23.1.1'
+    javadocDeps "com.android.support:support-annotations:$rootProject.ext.supportLibVersion"
+
     testCompile 'junit:junit:4.12'
     testCompile 'org.mockito:mockito-core:2.0.38-beta'
     testCompile 'org.assertj:assertj-core:3.3.0'
 }
 
-apply from: '../build-config/gradle-push.gradle'
+apply from: '../gradle/gradle-push.gradle'

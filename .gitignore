@@ -1,5 +1,39 @@
-.gradle
-build
+# generated files
+bin
+gen
+out
+target
+obj
+bin/*
+gen/*
+out/*
+target/*
+obj/*
+gen-external-apklibs/*
+gen-external-apklibs
+captures
+
+
+# Local configuration file (sdk path, etc)
 local.properties
-.idea
+#local.world.properties
+
+#Eclipse
+.classpath
+.project
+.settings
+.settings/
+project.properties
+
+#Intellij
+*.iws
 *.iml
+.idea/
+
+#mac
+.DS_Store
+
+# gradle
+.gradle
+build/
+gradlew.bat

@@ -18,154 +18,170 @@ import java.util.Collection;
  * @author xlepaul
  * @since 2015-06-29
  */
-public abstract class QueryBuilder<Source, Queryable,
-    Self extends QueryBuilder<Source, Queryable, Self>> {
+public abstract class QueryBuilder<Source, Queryable, Self extends QueryBuilder<Source, Queryable, Self>> {
 
-  /** @return a QueryBuilder for {@link ContentResolver} queries */
-  public static CR cr() { return new CR(); }
-
-  public static CR cr(Uri uri) { return new CR().source(uri); }
-
-  /** @return a QueryBuilder for {@link SQLiteDatabase} queries */
-  public static DB db() { return new DB(); }
-
-  public static DB db(String table) { return new DB().source(table); }
-
-  protected Source source;
-  protected String[] projection;
-  protected String selection;
-  protected String[] selectionArgs;
-  protected String sortOrder;
-
-  protected QueryBuilder() {}
-
-  protected abstract Self self();
-
-  public Self source(Source source) {
-    checkNull(this.source, "source");
-    this.source = source;
-    return self();
-  }
-
-  public Self projection(String... projection) {
-    checkNull(this.projection, "projection");
-    this.projection = projection;
-    return self();
-  }
-
-  public Self selection(String selection) {
-    checkNull(this.selection, "selection");
-    this.selection = selection;
-    return self();
-  }
-
-  public Self selectionArgs(String... selectionArgs) {
-    checkNull(this.selectionArgs, "selectionArgs");
-    this.selectionArgs = selectionArgs;
-    return self();
-  }
-
-  public Self selectionArgs(Collection<String> selectionArgs) {
-    return selectionArgs(selectionArgs.toArray(new String[selectionArgs.size()]));
-  }
-
-  public Self select(String columnName, String value) {
-    return select(Sel.filter(columnName, value));
-  }
-
-  /** @throws IllegalArgumentException if there are no values. */
-  public Self select(String columnName, String... values) {
-    return select(Sel.filter(columnName, values));
-  }
-
-  /** @throws IllegalArgumentException if the list is empty. */
-  public Self select(String columnName, Collection<String> values) {
-    return select(Sel.filter(columnName, values));
-  }
-
-  public Self select(Selection selection) {
-    return selection(selection.sql()).selectionArgs(selection.params());
-  }
-
-  public Self sortOrder(String sortOrder) {
-    checkNull(this.sortOrder, "sortOrder");
-    this.sortOrder = sortOrder;
-    return self();
-  }
-
-  protected final void checkNull(Object field, String name) {
-    if (field != null) {
-      throw new IllegalStateException(name + " has already been set");
-    }
-  }
-
-  public abstract Cursor query(Queryable queryable);
-
-  public final Fetcher fetch(Queryable queryable) {
-    return Fetcher.of(query(queryable));
-  }
-
-  public static class CR extends QueryBuilder<Uri, ContentResolver, CR> {
-    @Override
-    protected CR self() {
-      return this;
+    /**
+     * @return a QueryBuilder for {@link ContentResolver} queries
+     */
+    public static CR cr() {
+        return new CR();
     }
 
-    @Override
-    public Cursor query(ContentResolver cr) {
-      return cr.query(source, projection, selection, selectionArgs, sortOrder);
+    public static CR cr(Uri uri) {
+        return new CR().source(uri);
     }
 
-    public Cursor query(Context context) {
-      return query(context.getContentResolver());
+    /**
+     * @return a QueryBuilder for {@link SQLiteDatabase} queries
+     */
+    public static DB db() {
+        return new DB();
     }
 
-    public Fetcher fetch(Context context) {
-      return fetch(context.getContentResolver());
+    public static DB db(String table) {
+        return new DB().source(table);
     }
 
-  }
+    protected Source source;
+    protected String[] projection;
+    protected String selection;
+    protected String[] selectionArgs;
+    protected String sortOrder;
 
-  public static class DB extends QueryBuilder<String, SQLiteDatabase, DB> {
-
-    private boolean distinct;
-    private String groupBy;
-    private String having;
-    private String limit;
-
-    @Override
-    protected DB self() {
-      return this;
+    protected QueryBuilder() {
     }
 
-    public DB distinctValues() {
-      this.distinct = true;
-      return this;
+    protected abstract Self self();
+
+    public Self source(Source source) {
+        checkNull(this.source, "source");
+        this.source = source;
+        return self();
     }
 
-    public DB groupBy(String groupBy) {
-      checkNull(this.groupBy, "groupBy");
-      this.groupBy = groupBy;
-      return this;
+    public Self projection(String... projection) {
+        checkNull(this.projection, "projection");
+        this.projection = projection;
+        return self();
     }
 
-    public DB having(String having) {
-      checkNull(this.having, "having");
-      this.having = having;
-      return this;
+    public Self selection(String selection) {
+        checkNull(this.selection, "selection");
+        this.selection = selection;
+        return self();
     }
 
-    public DB limit(String limit) {
-      checkNull(this.limit, "limit");
-      this.limit = limit;
-      return this;
+    public Self selectionArgs(String... selectionArgs) {
+        checkNull(this.selectionArgs, "selectionArgs");
+        this.selectionArgs = selectionArgs;
+        return self();
     }
 
-    @Override
-    public Cursor query(SQLiteDatabase db) {
-      return db.query(distinct, source, projection, selection, selectionArgs,
-          groupBy, having, sortOrder, limit);
+    public Self selectionArgs(Collection<String> selectionArgs) {
+        return selectionArgs(selectionArgs.toArray(new String[selectionArgs.size()]));
     }
-  }
+
+    public Self select(String columnName, String value) {
+        return select(Sel.filter(columnName, value));
+    }
+
+    /**
+     * @throws IllegalArgumentException if there are no values.
+     */
+    public Self select(String columnName, String... values) {
+        return select(Sel.filter(columnName, values));
+    }
+
+    /**
+     * @throws IllegalArgumentException if the list is empty.
+     */
+    public Self select(String columnName, Collection<String> values) {
+        return select(Sel.filter(columnName, values));
+    }
+
+    public Self select(Selection selection) {
+        return selection(selection.sql()).selectionArgs(selection.params());
+    }
+
+    public Self sortOrder(String sortOrder) {
+        checkNull(this.sortOrder, "sortOrder");
+        this.sortOrder = sortOrder;
+        return self();
+    }
+
+    protected final void checkNull(Object field, String name) {
+        if (field != null) {
+            throw new IllegalStateException(name + " has already been set");
+        }
+    }
+
+    public abstract Cursor query(Queryable queryable);
+
+    public final Fetcher fetch(Queryable queryable) {
+        return Fetcher.of(query(queryable));
+    }
+
+    public static class CR extends QueryBuilder<Uri, ContentResolver, CR> {
+        @Override
+        protected CR self() {
+            return this;
+        }
+
+        @Override
+        public Cursor query(ContentResolver cr) {
+            return cr.query(source, projection, selection, selectionArgs, sortOrder);
+        }
+
+        public Cursor query(Context context) {
+            return query(context.getContentResolver());
+        }
+
+        public Fetcher fetch(Context context) {
+            return fetch(context.getContentResolver());
+        }
+
+    }
+
+    public static class DB extends QueryBuilder<String, SQLiteDatabase, DB> {
+
+        private boolean distinct;
+        private String groupBy;
+        private String having;
+        private String limit;
+
+        @Override
+        protected DB self() {
+            return this;
+        }
+
+        public DB distinctValues() {
+            this.distinct = true;
+            return this;
+        }
+
+        public DB groupBy(String groupBy) {
+            checkNull(this.groupBy, "groupBy");
+            this.groupBy = groupBy;
+            return this;
+        }
+
+        public DB having(String having) {
+            checkNull(this.having, "having");
+            this.having = having;
+            return this;
+        }
+
+        public DB limit(String limit) {
+            checkNull(this.limit, "limit");
+            this.limit = limit;
+            return this;
+        }
+
+        @Override
+        public Cursor query(SQLiteDatabase db) {
+            return db.query(distinct, source, projection, selection, selectionArgs,
+                    groupBy, having, sortOrder, limit);
+        }
+    }
 
 }

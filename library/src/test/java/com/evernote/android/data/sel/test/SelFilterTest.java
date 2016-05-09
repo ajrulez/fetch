@@ -41,7 +41,7 @@ public class SelFilterTest extends AbstractSelTest {
     assertSelection(Sel.filter("col", Arrays.asList("a", "b", "c")),
         "col in (?,?,?)", "a", "b", "c");
 
-    String binding = Sel.filter("col", Collections.nCopies(8000,"plop")).sql();
+    String binding = Sel.filter("col", Collections.nCopies(8000, "plop")).sql();
     assertThat(binding).containsPattern("\\?(,\\?){7999}");
   }
 
