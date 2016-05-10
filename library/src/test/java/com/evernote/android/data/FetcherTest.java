@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016 Evernote Corporation. All rights reserved.
+ * Copyright 2008-2016 Evernote Corporation. All rights reserved.
  */
 package com.evernote.android.data;
 

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2015 Evernote Corporation. All rights reserved.
+ * Copyright 2008-2016 Evernote Corporation. All rights reserved.
  */
 package com.evernote.android.data;
 
@@ -19,6 +19,7 @@ import rx.Subscriber;
 
 /**
  * @author xlepaul
+ * @author rwondratschek
  * @since 2015-06-29
  */
 public abstract class QueryBuilder<Source, Queryable, Self extends QueryBuilder<Source, Queryable, Self>> {
