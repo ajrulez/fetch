@@ -14,6 +14,9 @@ import com.evernote.android.data.sel.Selection;
 
 import java.util.Collection;
 
+import rx.Observable;
+import rx.Subscriber;
+
 /**
  * @author xlepaul
  * @since 2015-06-29
@@ -117,8 +120,27 @@ public abstract class QueryBuilder<Source, Queryable, Self extends QueryBuilder<
 
     public abstract Cursor query(Queryable queryable);
 
+    public final Observable<Cursor> queryStream(final Queryable queryable) {
+        return Observable.create(new Observable.OnSubscribe<Cursor>() {
+            @Override
+            public void call(Subscriber<? super Cursor> subscriber) {
+                subscriber.onNext(query(queryable));
+                subscriber.onCompleted();
+            }
+        });
+    }
+
     public final Fetcher fetch(Queryable queryable) {
         return Fetcher.of(query(queryable));
+    }
+
+    public final <ResultT> Observable<ResultT> fetchStream(final Queryable queryable, final Converter<ResultT> converter) {
+        return Observable.create(new Observable.OnSubscribe<ResultT>() {
+            @Override
+            public void call(Subscriber<? super ResultT> subscriber) {
+                fetch(queryable).subscribe(converter, subscriber);
+            }
+        });
     }
 
     public static class CR extends QueryBuilder<Uri, ContentResolver, CR> {
@@ -136,10 +158,17 @@ public abstract class QueryBuilder<Source, Queryable, Self extends QueryBuilder<
             return query(context.getContentResolver());
         }
 
+        public Observable<Cursor> queryStream(Context context) {
+            return queryStream(context.getContentResolver());
+        }
+
         public Fetcher fetch(Context context) {
             return fetch(context.getContentResolver());
         }
 
+        public <ResultT> Observable<ResultT> fetchStream(Context context, Converter<ResultT> converter) {
+            return fetchStream(context.getContentResolver(), converter);
+        }
     }
 
     public static class DB extends QueryBuilder<String, SQLiteDatabase, DB> {

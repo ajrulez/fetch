@@ -1,14 +1,10 @@
 /**
  * Copyright (c) 2016 Evernote Corporation. All rights reserved.
  */
-package com.evernote.android.data.test;
+package com.evernote.android.data;
 
 
 import android.database.Cursor;
-
-import com.evernote.android.data.Converter;
-import com.evernote.android.data.Fetcher;
-import com.evernote.android.data.Optional;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,6 +13,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Collections;
 import java.util.List;
+
+import rx.observers.TestSubscriber;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.junit.Assert.assertFalse;
@@ -126,4 +124,19 @@ public class FetcherTest {
     verify(cursor).close();
   }
 
+  @Test
+  public void rxBindingSingleValue() {
+    when(cursor.getCount()).thenReturn(1);
+    when(cursor.moveToNext()).thenReturn(true, false);
+    when(cursor.getString(0)).thenReturn("Yo");
+
+    TestSubscriber<String> testSubscriber = new TestSubscriber<>();
+
+    Fetcher fetcher = Fetcher.of(cursor);
+    fetcher.subscribe(Converter.STRING, testSubscriber);
+
+    testSubscriber.requestMore(1);
+    testSubscriber.assertValueCount(1);
+    testSubscriber.assertValue("Yo");
+  }
 }

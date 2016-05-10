@@ -12,6 +12,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import rx.Subscriber;
+
 /**
  * Utility to fetch all rows from a cursor and convert them to an object.
  * <p>
@@ -79,6 +81,21 @@ public class Fetcher {
             return populate(converter, new ArrayList<ResultT>(cursor.getCount()));
         } finally {
             close();
+        }
+    }
+
+    /*package*/ <ResultT> void subscribe(Converter<ResultT> converter, Subscriber<? super ResultT> subscriber) {
+        try {
+            if (isEmpty(cursor)) {
+                return;
+            }
+
+            while (this.cursor.moveToNext()) {
+                subscriber.onNext(converter.convert(this.cursor));
+            }
+        } finally {
+            close();
+            subscriber.onCompleted();
         }
     }
 

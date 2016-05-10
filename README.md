@@ -10,7 +10,7 @@ Add the following dependency to your Gradle config:
 
 ```groovy
 dependencies {
-    compile 'com.evernote:android-fetch:0.1.0'
+    compile 'com.evernote:android-fetch:0.3.0'
 }
 ```
 
@@ -74,4 +74,16 @@ contentResolver.query(sourceUri, null,
   "name in (?,?,?)",
   nameList.toArray(new String[nameList.size()]),
   null);
+```
+
+You can also create `Observable`s to do the work in a background thread:
+
+```java
+QueryBuilder.cr(MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+        .projection(MediaStore.Images.Media.DATA)
+        .selection(selection)
+        .fetchStream(mContext, Converter.STRING)
+        .map(...)
+        .filter(...)
+        .observeOn(...);
 ```
