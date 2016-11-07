@@ -12,7 +12,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import rx.Subscriber;
+import io.reactivex.ObservableEmitter;
 
 /**
  * Utility to fetch all rows from a cursor and convert them to an object.
@@ -84,18 +84,21 @@ public class Fetcher {
         }
     }
 
-    /*package*/ <ResultT> void subscribe(Converter<ResultT> converter, Subscriber<? super ResultT> subscriber) {
+    /*package*/ <ResultT> void subscribe(Converter<ResultT> converter, ObservableEmitter<? super ResultT> emitter) {
         try {
             if (isEmpty(cursor)) {
                 return;
             }
 
             while (this.cursor.moveToNext()) {
-                subscriber.onNext(converter.convert(this.cursor));
+                ResultT event = converter.convert(this.cursor);
+                if (event != null) {
+                    emitter.onNext(event);
+                }
             }
         } finally {
             close();
-            subscriber.onCompleted();
+            emitter.onComplete();
         }
     }
 
@@ -143,8 +146,7 @@ public class Fetcher {
         return cursor == null || cursor.getCount() == 0;
     }
 
-    private <ResultT, CollT extends Collection<ResultT>>
-    CollT populate(Converter<ResultT> converter, CollT results) {
+    private <ResultT, CollT extends Collection<ResultT>> CollT populate(Converter<ResultT> converter, CollT results) {
         while (this.cursor.moveToNext()) {
             ResultT result = converter.convert(this.cursor);
             if (result != null || !skipNulls) {

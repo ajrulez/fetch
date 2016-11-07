@@ -34,7 +34,7 @@ android {
 
 dependencies {
     compile "com.android.support:support-annotations:$rootProject.ext.supportLibVersion"
-    compile 'io.reactivex:rxjava:1.1.5'
+    compile 'io.reactivex.rxjava2:rxjava:2.0.0'
 
     // needed so that the javadoc can find the annotations
     javadocDeps "com.android.support:support-annotations:$rootProject.ext.supportLibVersion"

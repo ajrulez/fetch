@@ -14,7 +14,9 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.util.Collections;
 import java.util.List;
 
-import rx.observers.TestSubscriber;
+import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.junit.Assert.assertFalse;
@@ -126,17 +128,20 @@ public class FetcherTest {
 
   @Test
   public void rxBindingSingleValue() {
-    when(cursor.getCount()).thenReturn(1);
-    when(cursor.moveToNext()).thenReturn(true, false);
-    when(cursor.getString(0)).thenReturn("Yo");
+    when(cursor.getCount()).thenReturn(3);
+    when(cursor.moveToNext()).thenReturn(true, true, true, false);
+    when(cursor.getString(0)).thenReturn("First", null, "Third");
 
-    TestSubscriber<String> testSubscriber = new TestSubscriber<>();
-
-    Fetcher fetcher = Fetcher.of(cursor);
-    fetcher.subscribe(Converter.STRING, testSubscriber);
-
-    testSubscriber.requestMore(1);
-    testSubscriber.assertValueCount(1);
-    testSubscriber.assertValue("Yo");
+    final Fetcher fetcher = Fetcher.of(cursor);
+    Observable
+            .create(new ObservableOnSubscribe<String>() {
+              @Override
+              public void subscribe(ObservableEmitter<String> e) throws Exception {
+                fetcher.subscribe(Converter.STRING, e);
+              }
+            })
+            .test()
+            .assertValueCount(2)
+            .assertValues("First", "Third");
   }
 }

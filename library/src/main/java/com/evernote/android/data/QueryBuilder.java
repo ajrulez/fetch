@@ -13,9 +13,12 @@ import com.evernote.android.data.sel.Sel;
 import com.evernote.android.data.sel.Selection;
 
 import java.util.Collection;
+import java.util.concurrent.Callable;
 
-import rx.Observable;
-import rx.Subscriber;
+import io.reactivex.Maybe;
+import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
 
 /**
  * @author xlepaul
@@ -121,12 +124,11 @@ public abstract class QueryBuilder<Source, Queryable, Self extends QueryBuilder<
 
     public abstract Cursor query(Queryable queryable);
 
-    public final Observable<Cursor> queryStream(final Queryable queryable) {
-        return Observable.create(new Observable.OnSubscribe<Cursor>() {
+    public final Maybe<Cursor> queryStream(final Queryable queryable) {
+        return Maybe.fromCallable(new Callable<Cursor>() {
             @Override
-            public void call(Subscriber<? super Cursor> subscriber) {
-                subscriber.onNext(query(queryable));
-                subscriber.onCompleted();
+            public Cursor call() throws Exception {
+                return query(queryable);
             }
         });
     }
@@ -136,10 +138,10 @@ public abstract class QueryBuilder<Source, Queryable, Self extends QueryBuilder<
     }
 
     public final <ResultT> Observable<ResultT> fetchStream(final Queryable queryable, final Converter<ResultT> converter) {
-        return Observable.create(new Observable.OnSubscribe<ResultT>() {
+        return Observable.create(new ObservableOnSubscribe<ResultT>() {
             @Override
-            public void call(Subscriber<? super ResultT> subscriber) {
-                fetch(queryable).subscribe(converter, subscriber);
+            public void subscribe(ObservableEmitter<ResultT> e) throws Exception {
+                fetch(queryable).subscribe(converter, e);
             }
         });
     }
@@ -159,7 +161,7 @@ public abstract class QueryBuilder<Source, Queryable, Self extends QueryBuilder<
             return query(context.getContentResolver());
         }
 
-        public Observable<Cursor> queryStream(Context context) {
+        public Maybe<Cursor> queryStream(Context context) {
             return queryStream(context.getContentResolver());
         }
 
