@@ -1,21 +1,20 @@
 # Fetch
 
-A library to eliminate boilerplate when querying `ContentResolver` and
-`SQLiteDatabase`.
+A library to eliminate boilerplate when querying `ContentResolver` and `SQLiteDatabase`.
 
+## Download
 
-## Usage
-
-Add the following dependency to your Gradle config:
+Download [the latest version](http://search.maven.org/#search|gav|1|g:"com.evernote"%20AND%20a:"android-fetch") or grab via Gradle:
 
 ```groovy
 dependencies {
-    compile 'com.evernote:android-fetch:0.3.0'
+    compile 'com.evernote:android-fetch:1.0.0'
 }
 ```
 
-In its simplest form, the library enables this:
+## Usage
 
+In its simplest form, the library enables this:
 ```java
 Cursor cursor;
 List<String> result = new ArrayList<>();
@@ -33,15 +32,12 @@ try {
 ```
 
 To become this:
-
 ```java
-List<String> result = QueryBuilder.cr(sourceUri)
-  .fetch(contentResolver).toList(Converter.STRING);
+List<String> result = QueryBuilder.cr(sourceUri).fetch(contentResolver).toList(Converter.STRING);
 ```
 
 Every parameter of `query` can be specified by calling additional optional
 methods, and you can use a custom `Converter` to build your own objects:
-
 ```java
 List<Thing> things = QueryBuilder.db("my_table")
   .projection("id", "name", "description")
@@ -61,23 +57,16 @@ List<Thing> things = QueryBuilder.db("my_table")
 ```
 
 There are also convenience methods for filters on list of values:
-
-
 ```java
 QueryBuilder.cr(sourceUri).select("name", nameList);
 ```
 
-is equivalent to:
-
+Is equivalent to:
 ```java
-contentResolver.query(sourceUri, null,
-  "name in (?,?,?)",
-  nameList.toArray(new String[nameList.size()]),
-  null);
+contentResolver.query(sourceUri, null, "name in (?,?,?)", nameList.toArray(new String[nameList.size()]), null);
 ```
 
-You can also create `Observable`s to do the work in a background thread:
-
+You can also use the RxJava binding to create an `Observable` from your query.
 ```java
 QueryBuilder.cr(MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
         .projection(MediaStore.Images.Media.DATA)
